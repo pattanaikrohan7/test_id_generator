@@ -1,0 +1,151 @@
+<ng-container *ngIf="hasAccessRights$ | async; else noAccessTemplate">
+  <ng-container *ngrxLet="dashboardService.reportData$ as reportData">
+    <ng-container *ngrxLet="dashboardService.reportLoading$ as reportLoading">
+      <div class="mat-card-wrapper">
+        <s2a-dashboard-card
+          class="flex-card"
+          [title]="'components.performance.line_dashboard.dashboard.card_heading.kpi' | translate"
+          [isLoading]="reportLoading ?? true"
+        >
+          <s2a-kpi-card
+            *ngIf="reportData"
+            (click)="!reportLoading && kpiModel !== 'opi' && openLineKpiWidgetDialog(reportData)"
+            [isLoading]="reportLoading"
+            [report]="reportData"
+            class="kpi-card pointer"
+          >
+          </s2a-kpi-card>
+        </s2a-dashboard-card>
+        <s2a-dashboard-card
+          class="flex-card"
+          [title]="'components.performance.line_dashboard.dashboard.card_heading.production_counter' | translate"
+          [isLoading]="(dashboardService.productionCounterLoading$ | async) ?? true"
+        >
+          <s2a-production-counter-s class="production-counter"></s2a-production-counter-s>
+        </s2a-dashboard-card>
+
+        <div class="speed-product-wrapper">
+          <ng-container *ngrxLet="dashboardService.productData$ as productData">
+            <ng-container *ngrxLet="dashboardService.productLoading$ as productLoading">
+              <s2a-dashboard-card
+                [title]="'components.performance.line_dashboard.dashboard.card_heading.product' | translate"
+                [isLoading]="productLoading"
+                [skeletons]="2"
+                (click)="!productLoading && openProductsDialog()"
+              >
+                <s2a-products-widget-s
+                  [isLoading]="productLoading"
+                  [products]="productData ?? []"
+                  class="product-widget pointer"
+                >
+                </s2a-products-widget-s>
+              </s2a-dashboard-card>
+            </ng-container>
+          </ng-container>
+          <s2a-dashboard-card
+            [isLoading]="reportLoading"
+            [skeletons]="2"
+            [title]="'components.performance.line_dashboard.dashboard.card_heading.speed' | translate"
+            class="speed-card"
+          >
+            <s2a-speed-widget-s
+              *ngIf="dashboardService.speedConfigData$ | async as speedConfig"
+              [isBrownField]="isBrownField"
+              [isLive]="(dashboardService.isLive$ | async) ?? false"
+              [isLoading]="(dashboardService.speedLoading$ | async) ?? true"
+              [speedConfig]="speedConfig.speed"
+              [speeds]="reportData?.speeds ?? []"
+              class="speed-widget"
+            >
+            </s2a-speed-widget-s>
+          </s2a-dashboard-card>
+        </div>
+        <div style="display: none" class="line-break"></div>
+        <s2a-dashboard-card [isLoading]="reportLoading" class="top-downtime-card">
+          <s2a-top-downtimes-s
+            *ngIf="reportData"
+            [isLoading]="reportLoading"
+            [machineReport]="reportData"
+            [timezone]="timezone"
+            [colorsMap]="(dashboardService.downtimeCategoriesColorMap$ | async) ?? undefined"
+            [kpiTranslationsMap]="(dashboardService.kpiTranslationsMap$ | async) ?? undefined"
+            class="big-card pointer"
+          >
+          </s2a-top-downtimes-s>
+        </s2a-dashboard-card>
+
+        <ng-container *ngrxLet="dashboardService.timestealerLoading$ as timestealerLoading">
+          <ng-container *ngrxLet="dashboardService.timestealerData$ as timestealerData">
+            <ng-container *ngrxLet="dashboardService.lineData$ as lineAnalysisData">
+              <s2a-dashboard-card
+                (click)="
+                  timestealerData &&
+                    !timestealerLoading &&
+                    lineAnalysisData &&
+                    openTimestealerMWidget(timestealerData, lineAnalysisData)
+                "
+                class="timestealer pointer"
+                [isLoading]="timestealerLoading || !timestealerData"
+              >
+                <s2a-timestealer-s
+                  [isLoading]="timestealerLoading || !timestealerData"
+                  [causerEquipments]="timestealerData?.timestealers ?? []"
+                  [noTimestealerConfig]="timestealerData?.noConfig ?? true"
+                  [timestealerError]="timestealerData?.error"
+                >
+                </s2a-timestealer-s>
+              </s2a-dashboard-card>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </div>
+
+      <ng-container *ngrxLet="dashboardService.chartData$ as chartData">
+        <s2a-dashboard-card
+          [isLoading]="(dashboardService.chartDataLoading$ | async) ?? true"
+          [skeletons]="8"
+          class="chart-wrapper"
+        >
+          <div class="mat-card-overlap"></div>
+
+          <s2a-machine-timeline-chart-data-container
+            class="machine-timeline-chart-data-container"
+            [loading]="(dashboardService.chartDataLoading$ | async) ?? true"
+            [checkmatCurve]="chartData?.checkmatCurve ?? []"
+            [comments]="chartData?.comments ?? []"
+            [designSpeeds]="chartData?.speedData?.design_speeds ?? []"
+            [setSpeeds]="chartData?.speedData?.set_speeds ?? []"
+            [lineData]="chartData?.lineData"
+            [machineId]="chartData.lineData?.activeLine?.equipmentId"
+            [timezone]="chartData?.lineData?.activeTimezone"
+            [timeRange]="chartData?.timeRange"
+            [products]="chartData?.products ?? []"
+            [shifts]="chartData?.shifts ?? []"
+            [report]="chartData?.report"
+            [showSortsChart]="chartData?.showSortsChart ?? false"
+            [showShiftChart]="chartData?.showShiftChart ?? false"
+            [categoryColorsMap]="(dashboardService.downtimeCategoriesColorMap$ | async) ?? undefined"
+            [classColorsMap]="(dashboardService.downtimeClassificationColorMap$ | async) ?? undefined"
+            [kpiTranslationsMap]="(dashboardService.kpiTranslationsMap$ | async) ?? undefined"
+            [settingsScope]="timelineSettingsScope"
+          >
+          </s2a-machine-timeline-chart-data-container>
+        </s2a-dashboard-card>
+      </ng-container>
+
+      <mat-card appearance="outlined" class="rotate-device">
+        {{ 'components.performance.line_dashboard.dashboard.rotate_device' | translate }}
+      </mat-card>
+    </ng-container>
+  </ng-container>
+</ng-container>
+
+<ng-template #noAccessTemplate>
+  <ng-container *s2aDynamicImport="'PlaceHolder'"></ng-container>
+  <s2a-wc-place-holder
+    class="error-template"
+    [matIcon]="'error_outline'"
+    [titleText]="'global.errors.no_configuration_header' | translate"
+    [descriptionText]="'global.errors.no_configuration_text' | translate"
+  ></s2a-wc-place-holder>
+</ng-template>

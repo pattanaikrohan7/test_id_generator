@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test HTML</title>
+</head>
+<body>
+
+    <!-- 1. Elements with existing data-testid (should remain unchanged) -->
+    <div id="existing-div" data-testid="existing-div-test"></div>
+    <input name="email" type="text" data-testid="email_input"></input>
+
+    <!-- 2. Elements with ID attribute -->
+    <div id="container"></div>
+    <div id="container"></div> <!-- Duplicate ID -->
+
+    <!-- 3. Elements with name attribute -->
+    <input name="username" type="text">
+    <input name="username" type="password"> <!-- Duplicate name -->
+
+    <!-- 4. Elements with class attribute -->
+    <button class="btn primary"></button>
+    <button class="btn primary"></button> <!-- Duplicate class -->
+
+    <!-- 5. Elements without id, name, or class (fallback to tag name) -->
+    <span></span>
+    <p></p>
+
+    <!-- 6. Self-closing tags -->
+    <img src="logo.png" alt="logo">
+    <input type="submit" value="Submit">
+
+    <!-- 7. Elements to be ignored based on configuration (meta, script, etc.) -->
+    <meta name="description" content="Test page">
+    <script>alert('Test');</script>
+
+    <div id="ROHAN"></div>
+
+
+</body>
+</html>
